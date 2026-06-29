@@ -40,15 +40,15 @@
         $currentMonth = $appointment->date ? date('m', strtotime($appointment->date)) : '';
         $currentYear = $appointment->date ? date('Y', strtotime($appointment->date)) : '';
         if(intval($currentYear) < 2026) { $currentYear='2026' ; }
-        @endphp
-        <div class="row g-2 mb-3">
+            @endphp
+            <div class="row g-2 mb-3">
             <div class="col-4">
                 <select name="appointment_day" class="form-select" required>
                     <option value="">Día</option>
                     @for ($i = 1; $i <= 31; $i++)
                         @php $val=sprintf('%02d', $i); @endphp
                         <option value="{{ $val }}" {{ old('appointment_day', $currentDay) == $val ? 'selected' : '' }}>{{ $i }}</option>
-                    @endfor
+                        @endfor
                 </select>
             </div>
             <div class="col-4">
@@ -62,44 +62,56 @@
             <div class="col-4">
                 <input type="number" name="appointment_year" value="{{ old('appointment_year', $currentYear) }}" class="form-control" min="2026" max="2100" required>
             </div>
-        </div>
-        <label class="form-label fw-bold">Hora de la Cita</label>
-        <input type="time" name="time" value="{{ old('time', $appointment->time) }}" class="form-control mb-3" required>
-        <label class="form-label fw-bold">Motivo de la Consulta</label>
-        <select name="reason" class="form-select mb-3" required>
-            <option value="">-- Seleccione el motivo --</option>
-            <option value="Consulta General Médica" {{ old('reason', $appointment->reason) == 'Consulta General Médica' ? 'selected' : '' }}> Consulta General Médica</option>
-            <option value="Control de Vacunas (Séxtuple/Triple)" {{ old('reason', $appointment->reason) == 'Control de Vacunas (Séxtuple/Triple)' ? 'selected' : '' }}> Control de Vacunas (Séxtuple/Triple)</option>
-            <option value="Desparasitación Interna / Externa" {{ old('reason', $appointment->reason) == 'Desparasitación Interna / Externa' ? 'selected' : '' }}> Desparasitación Interna / Externa</option>
-            <option value="Baño y Corte de Pelo (Estética)" {{ old('reason', $appointment->reason) == 'Baño y Corte de Pelo (Estética)' ? 'selected' : '' }}> Baño y Corte de Pelo (Estética)</option>
-            <option value="Baño Medicado Antipulgas" {{ old('reason', $appointment->reason) == 'Baño Medicado Antipulgas' ? 'selected' : '' }}> Baño Medicado Antipulgas</option>
-            <option value="Esterilización / Cirugía Programada" {{ old('reason', $appointment->reason) == 'Esterilización / Cirugía Programada' ? 'selected' : '' }}> Esterilización / Cirugía Programada</option>
-            <option value="Profilaxis (Limpieza Dental)" {{ old('reason', $appointment->reason) == 'Profilaxis (Limpieza Dental)' ? 'selected' : '' }}> Profilaxis (Limpieza Dental)</option>
-        </select>
-        <div class="d-flex gap-2 mt-2">
-            <button class="btn btn-primary">Actualizar</button>
-            <a href="/appointments" class="btn btn-secondary">Cancelar</a>
-        </div>
-    </form>
+</div>
+<label class="form-label fw-bold">Hora de la Cita</label>
+<input type="time" name="time" value="{{ old('time', $appointment->time) }}" class="form-control mb-3" required>
+<label class="form-label fw-bold">Motivo de la Consulta</label>
+<select name="reason" class="form-select mb-3" required>
+    <option value="">-- Seleccione el motivo --</option>
+    <option value="Consulta General Médica" {{ old('reason', $appointment->reason) == 'Consulta General Médica' ? 'selected' : '' }}> Consulta General Médica</option>
+    <option value="Control de Vacunas (Séxtuple/Triple)" {{ old('reason', $appointment->reason) == 'Control de Vacunas (Séxtuple/Triple)' ? 'selected' : '' }}> Control de Vacunas (Séxtuple/Triple)</option>
+    <option value="Desparasitación Interna / Externa" {{ old('reason', $appointment->reason) == 'Desparasitación Interna / Externa' ? 'selected' : '' }}> Desparasitación Interna / Externa</option>
+    <option value="Baño y Corte de Pelo (Estética)" {{ old('reason', $appointment->reason) == 'Baño y Corte de Pelo (Estética)' ? 'selected' : '' }}> Baño y Corte de Pelo (Estética)</option>
+    <option value="Baño Medicado Antipulgas" {{ old('reason', $appointment->reason) == 'Baño Medicado Antipulgas' ? 'selected' : '' }}> Baño Medicado Antipulgas</option>
+    <option value="Esterilización / Cirugía Programada" {{ old('reason', $appointment->reason) == 'Esterilización / Cirugía Programada' ? 'selected' : '' }}> Esterilización / Cirugía Programada</option>
+    <option value="Profilaxis (Limpieza Dental)" {{ old('reason', $appointment->reason) == 'Profilaxis (Limpieza Dental)' ? 'selected' : '' }}> Profilaxis (Limpieza Dental)</option>
+</select>
+<div class="d-flex gap-2 mt-2">
+    <button class="btn btn-primary">Actualizar</button>
+    <a href="/appointments" class="btn btn-secondary">Cancelar</a>
+</div>
+</form>
 </div>
 <script>
-    document.getElementById('owner_select').addEventListener('change', function() {
-        var ownerId = this.value;
+    document.addEventListener('DOMContentLoaded', function() {
+        var ownerSelect = document.getElementById('owner_select');
         var petSelect = document.getElementById('pet_select');
-        petSelect.innerHTML = '<option value="">-- Cargando mascotas... --</option>';
-        if (ownerId) {
-            fetch('/api/owners/' + ownerId + '/pets')
-                .then(response => response.json())
-                .then(data => {
-                    petSelect.innerHTML = '<option value="">-- Elige una mascota --</option>';
-                    if (data.length > 0) {
-                        data.forEach(pet => {
-                            petSelect.innerHTML += `<option value="${pet.id}">${pet.name} (${pet.species})</option>`;
-                        });
-                    } else {
-                        petSelect.innerHTML = '<option value="">Este dueño no tiene mascotas</option>';
-                    }
-                });
+        var currentPetId = "{{ $appointment->pet ?? '' }}";
+        function cargarMascotas(ownerId, selectedPetId = null) {
+            petSelect.innerHTML = '<option value="">-- Cargando mascotas... --</option>';
+            if (ownerId) {
+                fetch('/api/owners/' + ownerId + '/pets')
+                    .then(response => response.json())
+                    .then(data => {
+                        petSelect.innerHTML = '<option value="">-- Elige una mascota --</option>';
+                        if (data.length > 0) {
+                            data.forEach(pet => {
+                                var isSelected = (selectedPetId && pet.id == selectedPetId) ? 'selected' : '';
+                                petSelect.innerHTML += `<option value="${pet.id}" ${isSelected}>${pet.name} (${pet.species})</option>`;
+                            });
+                        } else {
+                            petSelect.innerHTML = '<option value="">Este dueño no tiene mascotas</option>';
+                        }
+                    });
+            } else {
+                petSelect.innerHTML = '<option value="">-- Elige una mascota --</option>';
+            }
+        }
+        ownerSelect.addEventListener('change', function() {
+            cargarMascotas(this.value);
+        });
+        if (ownerSelect.value) {
+            cargarMascotas(ownerSelect.value, currentPetId);
         }
     });
 </script>

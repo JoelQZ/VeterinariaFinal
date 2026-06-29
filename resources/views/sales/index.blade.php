@@ -46,23 +46,25 @@
                     <tbody>
                         @forelse($sales as $sale)
                         <tr>
-                            <td class="text-secondary small">{{ $sale->created_at->format('d/m/Y h:i A') }}</td>
+                            <td class="text-secondary small">
+                                {{ \Carbon\Carbon::parse($sale->created_at)->subHours(5)->format('d/m/Y h:i A') }}
+                            </td>
                             <td class="fw-bold text-dark">{{ $sale->owner->name ?? 'Cliente General' }}</td>
                             <td>
                                 @if($sale->payment_method == 'Efectivo')
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">Efectivo</span>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">Efectivo</span>
                                 @elseif($sale->payment_method == 'Tarjeta')
-                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3">Tarjeta</span>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3">Tarjeta</span>
                                 @else
-                                    <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-3">Transferencia</span>
+                                <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-3">Transferencia</span>
                                 @endif
                             </td>
                             <td>
                                 <ul class="list-unstyled mb-0 small">
                                     @foreach($sale->details as $detail)
-                                        <li class="text-muted">
-                                            • {{ $detail->concept }} <span class="fw-bold text-dark">({{ $detail->quantity }}x S/. {{ number_format($detail->price, 2) }})</span>
-                                        </li>
+                                    <li class="text-muted">
+                                        • {{ $detail->concept }} <span class="fw-bold text-dark">({{ $detail->quantity }}x S/. {{ number_format($detail->price, 2) }})</span>
+                                    </li>
                                     @endforeach
                                 </ul>
                             </td>

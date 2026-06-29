@@ -9,7 +9,11 @@ class Sale extends Model{
         'owner_id',
         'total',
         'payment_method',
+        'date',
+        'time',
     ];
+
+    public $timestamps = false;
 
     public function details(){
         return $this->hasMany(SaleDetail::class);

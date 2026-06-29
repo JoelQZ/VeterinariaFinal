@@ -18,7 +18,7 @@
         <tbody>
             @foreach($appointments as $appointment)
             <tr>
-                <td>{{ $appointment->date }}</td>
+                <td>{{ \Carbon\Carbon::parse($appointment->date)->format('d-m-Y') }}</td>
                 <td class="fw-bold text-secondary">
                     {{ \Carbon\Carbon::parse($appointment->time)->format('h:i A') }}
                 </td>

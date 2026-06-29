@@ -9,6 +9,7 @@ class Appointment extends Model{
         'pet',
         'owner',
         'date',
+        'time',
         'reason',
         'status',
     ];
